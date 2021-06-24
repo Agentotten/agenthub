@@ -71,9 +71,9 @@ do -- Local Tab
 		Callback = function(Value)
 			if Value == true then
 				local function NoclipLoop()
-					for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-						if child:IsA("BasePart") and child.CanCollide == true then
-							child.CanCollide = false
+					for _, c in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+						if c:IsA("BasePart") and c.CanCollide == true then
+							c.CanCollide = false
 						end
 					end
 				end
