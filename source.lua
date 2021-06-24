@@ -86,6 +86,12 @@ do -- Local Tab
 		end,
 		Enabled = false,
 	})
+
+	game:GetService("UserInputService").JumpRequest:Connect(function()
+		if getgenv().InfiniteJumpEnabled then
+			game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+		end
+	end)
 end
 
 do -- Scripts
