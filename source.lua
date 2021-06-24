@@ -1,5 +1,5 @@
 local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
-local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/boop71/cappuccino/main/v3/notification.lua"))()
+-- local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/boop71/cappuccino/main/v3/notification.lua"))()
 
 local Window = Material.Load({
 	Title = "Agent Hub",
@@ -16,40 +16,29 @@ local Scripts = {
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
 	},
-    
+
 	Hydroxide = {
 		Name = "Hydroxide",
 		Source = function()
 			Window.Banner({
 				Text = "Hydroxide might take a while to load",
 			})
-
-			loadstring(
-				game:HttpGetAsync(
-					("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "init")
-				),
-				"init" .. ".lua"
-			)()
-			loadstring(
-				game:HttpGetAsync(
-					("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "ui/main")
-				),
-				"ui/main" .. ".lua"
-			)()
+			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "init")), "init" .. ".lua")()
+			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "ui/main")), "ui/main" .. ".lua")()
 		end,
-	},
+	}
 }
 
-do -- Character Tab
+do -- Local Tab
 	getgenv().DefaultWalkSpeed = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed
 	getgenv().DefaultJumpPower = game.Players.LocalPlayer.Character.Humanoid.JumpPower
 	getgenv().InfiniteJumpEnabled = false
 
-	local CharacterTab = Window.New({
-		Title = "Character",
+	local LocalTab = Window.New({
+		Title = "Local",
 	})
 
-	CharacterTab.Slider({ -- Walk Speed
+	LocalTab.Slider({ -- Walk Speed
 		Text = "Walk Speed",
 		Callback = function(Value)
 			game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
@@ -59,7 +48,7 @@ do -- Character Tab
 		Def = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed,
 	})
 
-	CharacterTab.Slider({ -- Jump Power
+	LocalTab.Slider({ -- Jump Power
 		Text = "Jump Power",
 		Callback = function(Value)
 			game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
@@ -69,7 +58,7 @@ do -- Character Tab
 		Def = game.Players.LocalPlayer.Character.Humanoid.JumpPower,
 	})
 
-	CharacterTab.Toggle({ -- Infinite Jump
+	LocalTab.Toggle({ -- Infinite Jump
 		Text = "Infinite Jump",
 		Callback = function(Value)
 			getgenv().InfiniteJumpEnabled = Value
@@ -77,14 +66,10 @@ do -- Character Tab
 		Enabled = false,
 	})
 
-	CharacterTab.Toggle({ -- Noclip
+	LocalTab.Toggle({ -- Noclip
 		Text = "Noclip",
 		Callback = function(Value)
-			if Value == false then
-				if getgenv().NoclipLoop then
-					getgenv().NoclipLoop:Disconnect()
-				end
-			else
+			if Value == true then
 				local function NoclipLoop()
 					for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
 						if child:IsA("BasePart") and child.CanCollide == true then
@@ -93,12 +78,16 @@ do -- Character Tab
 					end
 				end
 				getgenv().NoclipLoop = game:GetService("RunService").Stepped:Connect(NoclipLoop)
+			else
+				if getgenv().NoclipLoop then
+					getgenv().NoclipLoop:Disconnect()
+				end
 			end
 		end,
 		Enabled = false,
 	})
 
-	CharacterTab.Toggle({ -- Fly
+	LocalTab.Toggle({ -- Fly
 		Text = "Fly",
 		Callback = function()
 			Window.Banner({
@@ -120,10 +109,28 @@ do -- Scripts
 		Title = "Scripts",
 	})
 
-	for n, s in pairs(Scripts) do -- Scripts loader very fancy
+	for _, scriptInfo in pairs(Scripts) do -- Scripts loader very fancy
 		ScriptsTab.Button({
-			Text = s.Name,
-			Callback = s.Source,
+			Text = scriptInfo.Name,
+			Callback = scriptInfo.Source,
 		})
 	end
+end
+
+do -- Credits
+    local CreditsTab = Window.New({
+        Title = "Credits"
+    })
+
+    CreditsTab.Button({ -- Programmer
+        Text = "Programmer: Agentotten",
+        Callback = function()
+        end
+    })
+
+    CreditsTab.Button({ -- UI Design
+        Text = "UI Design: Material Lua - Twink Marie",
+        Callback = function()
+        end
+    })
 end
