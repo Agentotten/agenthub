@@ -130,6 +130,7 @@ do -- Credits
 
     CreditsTab.Button({ -- Programmer
         Text = "Programmer: Agentotten",
+        Text = "Programmer: Agentotten#2610",
         Callback = function()
         end
     })
