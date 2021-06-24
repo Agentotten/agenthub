@@ -109,12 +109,22 @@ do -- Credits
     CreditsTab.Button({ -- Programmer
         Text = "Programmer: Agentotten#2610",
         Callback = function()
-        end
+        end,
+		Menu = {
+			Copy = function()
+				setclipboard("Agentotten#2610")
+			end
+		}
     })
 
     CreditsTab.Button({ -- UI Design
         Text = "UI Design: Material Lua - Twink Marie",
         Callback = function()
-        end
+        end,
+		Menu = {
+			Copy = function()
+				setclipboard("https://materiallua.ml")
+			end
+		}
     })
 end
