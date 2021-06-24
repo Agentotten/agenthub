@@ -6,7 +6,7 @@ local Window = Material.Load({
 	Style = 1,
 	SizeX = 500,
 	SizeY = 350,
-	Theme = "Light",
+	Theme = "Dark"
 })
 
 local Scripts = {
@@ -14,7 +14,7 @@ local Scripts = {
 		Name = "Infinite Yield FE",
 		Source = function()
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-		end,
+		end
 	},
 
 	Hydroxide = {
@@ -25,55 +25,51 @@ local Scripts = {
 			})
 			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "init")), "init" .. ".lua")()
 			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "ui/main")), "ui/main" .. ".lua")()
-		end,
+		end
 	}
 }
 
 do -- Local Tab
-	getgenv().DefaultWalkSpeed = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed
-	getgenv().DefaultJumpPower = game.Players.LocalPlayer.Character.Humanoid.JumpPower
-	getgenv().InfiniteJumpEnabled = false
-
 	local LocalTab = Window.New({
-		Title = "Local",
+		Title = "Local"
 	})
 
 	LocalTab.Slider({ -- Walk Speed
 		Text = "Walk Speed",
-		Callback = function(Value)
-			game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+		Callback = function(value)
+			game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed = value
 		end,
 		Min = 0,
 		Max = 1000,
-		Def = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed,
+		Def = game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed
 	})
 
 	LocalTab.Slider({ -- Jump Power
 		Text = "Jump Power",
-		Callback = function(Value)
-			game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+		Callback = function(value)
+			game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = value
 		end,
 		Min = 0,
 		Max = 1000,
-		Def = game.Players.LocalPlayer.Character.Humanoid.JumpPower,
+		Def = game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower
 	})
 
 	LocalTab.Toggle({ -- Infinite Jump
 		Text = "Infinite Jump",
-		Callback = function(Value)
-			getgenv().InfiniteJumpEnabled = Value
+		Callback = function(value)
+			getgenv().InfiniteJumpEnabled = value
 		end,
-		Enabled = false,
+		Enabled = false
 	})
 
 	LocalTab.Toggle({ -- Noclip
 		Text = "Noclip",
-		Callback = function(Value)
-			if Value == true then
+		Callback = function(value)
+			if value == true then
 				local function NoclipLoop()
-					for _, c in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-						if c:IsA("BasePart") and c.CanCollide == true then
-							c.CanCollide = false
+					for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+						if v:IsA("BasePart") and v.CanCollide == true then
+							v.CanCollide = false
 						end
 					end
 				end
@@ -84,25 +80,65 @@ do -- Local Tab
 				end
 			end
 		end,
-		Enabled = false,
+		Enabled = false
 	})
 
-	game:GetService("UserInputService").JumpRequest:Connect(function()
-		if getgenv().InfiniteJumpEnabled then
+	-- Infinite Jump Loop
+	spawn(game:GetService("UserInputService").JumpRequest:Connect(function()
+		if getgenv().InfiniteJumpEnabled == true then
 			game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
 		end
-	end)
+	end))
+end
+
+do -- Teleport Tab
+	local TeleportTab = Window.New({
+		Title = "Teleport"
+	})
+
+	local TeleportToButton = TeleportTab.Button({ -- Teleport To
+		Text = "Teleport To",
+		Callback = function()
+			game:GetService("Players").LocalPlayer.Character.PrimaryPart.CFrame = CFrame.new(getgenv().SelectedPlayer.Character.PrimaryPart.Position)
+		end
+	})
+
+	local PlayerList = TeleportTab.Dropdown({
+		Text = "Select Player",
+		Callback = function(value)
+			for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+				if plr.Name == value then
+					getgenv().SelectedPlayer = plr
+					TeleportToButton:SetText("Teleport To " .. plr.Name)
+				end
+			end
+		end,
+		Options = {"Agentotten"}
+	})
+
+	local function UpdatePlayerList()
+		local players = {}
+		for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+			table.insert(players, plr.Name)
+		end
+		PlayerList:SetOptions(players)
+	end
+
+	UpdatePlayerList()
+
+	game:GetService("Players").PlayerAdded:Connect(UpdatePlayerList)
+	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerList)
 end
 
 do -- Scripts
 	local ScriptsTab = Window.New({
-		Title = "Scripts",
+		Title = "Scripts"
 	})
 
-	for _, scriptInfo in pairs(Scripts) do -- Scripts loader very fancy
+	for _, v in pairs(Scripts) do -- Scripts loader very fancy
 		ScriptsTab.Button({
-			Text = scriptInfo.Name,
-			Callback = scriptInfo.Source,
+			Text = v.Name,
+			Callback = v.Source
 		})
 	end
 end
