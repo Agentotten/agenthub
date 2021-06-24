@@ -18,41 +18,27 @@ do -- Character Tab
         Title = "Character"
     })
 
-    local WalkSpeedSlider = CharacterTab.Slider({
+    CharacterTab.Slider({ -- Walk Speed
         Text = "Walk Speed",
         Callback = function(Value)
             game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
         end,
         Min = 0,
-        Max = 500,
+        Max = 1000,
         Def = game.Players.LocalPlayer.Character.Humanoid.WalkSpeed
     })
 
-    local JumpPowerSlider = CharacterTab.Slider({
+    CharacterTab.Slider({ -- Jump Power
         Text = "Jump Power",
         Callback = function(Value)
             game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
         end,
         Min = 0,
-        Max = 500,
+        Max = 1000,
         Def = game.Players.LocalPlayer.Character.Humanoid.JumpPower
     })
 
-    local ResetWalkSpeedButton = CharacterTab.Button({
-        Text = "Reset Walk Speed",
-        Callback = function()
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = getgenv().DefaultWalkSpeed
-        end
-    })
-
-    local ResetJumpPowerButton = CharacterTab.Button({
-        Text = "Reset Jump Power",
-        Callback = function()
-            game.Players.LocalPlayer.Character.Humanoid.JumpPower = getgenv().DefaultJumpPower
-        end
-    })
-
-    local InfJumpToggle = CharacterTab.Toggle({
+    CharacterTab.Toggle({ -- Infinite Jump
         Text = "Infinite Jump",
         Callback = function(Value)
             getgenv().InfiniteJumpEnabled = Value
@@ -60,7 +46,7 @@ do -- Character Tab
         Enabled = false
     })
     
-    local NoclipToggle = CharacterTab.Toggle({
+    CharacterTab.Toggle({ -- Noclip
         Text = "Noclip",
         Callback = function(Value)
             if Value == false then
@@ -77,6 +63,14 @@ do -- Character Tab
                 end
                 getgenv().NoclipLoop = game:GetService("RunService").Stepped:Connect(NoclipLoop)
             end
+        end,
+        Enabled = false
+    })
+
+    CharacterTab.Toggle({ -- Fly
+        Text = "Fly",
+        Callback = function()
+
         end,
         Enabled = false
     })
@@ -98,11 +92,5 @@ do -- Scripts
         Callback = function()
             loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
         end
-    })
-end
-
-do -- Games Tab
-    local GamesTab = Window.New({
-        Title = "Games"
     })
 end
