@@ -87,10 +87,29 @@ do -- Scripts
         Title = "Scripts"
     })
 
-    ScriptsTab.Button({
+    ScriptsTab.Button({ -- Infinite Yield
         Text = "Infinite Yield",
         Callback = function()
             loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+        end
+    })
+
+    ScriptsTab.Button({ -- Remote Spy - Hydroxide
+        Text = "Remote Spy - Hydroxide",
+        Callback = function()
+            Window.Banner({
+                Text = "Hydroxide might take a while to load"
+            })
+
+            local owner = "Upbolt"
+            local branch = "revision"
+
+            local function webImport(file)
+                return loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format(owner, branch, file)), file .. '.lua')()
+            end
+
+            webImport("init")
+            webImport("ui/main")
         end
     })
 end
