@@ -86,22 +86,6 @@ do -- Local Tab
 		end,
 		Enabled = false,
 	})
-
-	LocalTab.Toggle({ -- Fly
-		Text = "Fly",
-		Callback = function()
-			Window.Banner({
-				Text = "Fly is still work in progress",
-			})
-		end,
-		Enabled = false,
-	})
-
-	game:GetService("UserInputService").JumpRequest:Connect(function()
-		if getgenv().InfiniteJumpEnabled then
-			game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-		end
-	end)
 end
 
 do -- Scripts
