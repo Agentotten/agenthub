@@ -117,6 +117,12 @@ do -- Scripts
 	end
 end
 
+do -- Remote Spy
+	local RemoteSpyTab = Window.New({
+		Title = "Remote Spy"
+	})
+end
+
 do -- Credits
     local CreditsTab = Window.New({
         Title = "Credits"
