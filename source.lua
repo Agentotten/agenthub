@@ -83,10 +83,62 @@ do -- Local Tab
 		Enabled = false
 	})
 
+	LocalTab.Toggle({ -- Fly
+		Text = "Fly",
+		Callback = function(value)
+			if value == true then
+				getgenv().DefaultJumpPower = game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower
+				getgenv().FlyEnabled = true
+				game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+				game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = 0.45
+				getgenv().FlyLoop = game:GetService("RunService").Stepped:Connect(function()
+					game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+				end)
+			else
+				if getgenv().FlyLoop ~= nil then
+					getgenv().FlyLoop:Disconnect()
+					getgenv().FlyEnabled = false
+					game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = getgenv().DefaultJumpPower
+				end
+			end
+		end,
+		Enabled = false
+	})
+
 	-- Infinite Jump Loop
 	game:GetService("UserInputService").JumpRequest:Connect(function()
 		if getgenv().InfiniteJumpEnabled == true then
 			game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+		end
+	end)
+
+	game:GetService("UserInputService").InputBegan:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.Space then
+			if getgenv().FlyEnabled == true then
+				game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = 25
+			end
+			
+		elseif input.KeyCode == Enum.KeyCode.LeftControl then
+			if getgenv().FlyEnabled == true then
+				if getgenv().FlyLoop ~= nil then
+					getgenv().FlyLoop:Disconnect()
+				end
+			end
+		end
+	end)
+
+	game:GetService("UserInputService").InputEnded:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.Space then
+			if getgenv().FlyEnabled == true then
+				game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = 0.45
+			end
+			
+		elseif input.KeyCode == Enum.KeyCode.LeftControl then
+			if getgenv().FlyEnabled == true then
+				getgenv().FlyLoop = game:GetService("RunService").Stepped:Connect(function()
+					game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+				end)
+			end
 		end
 	end)
 end
@@ -103,16 +155,16 @@ do -- Teleport Tab
 		end
 	})
 
-	local PlayerListDropDown = TeleportTab.Dropdown({
+	local PlayerListDropDown = TeleportTab.Dropdown({ -- Select Player
 		Text = "Select Player",
 		Callback = function(value)
 			for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
 				if plr.Name == value then
 					getgenv().SelectedPlayer = plr
+					TeleportToButton:SetText("Teleport To " .. plr.Name)
 					return
 				end
 			end
-			getgenv().SelectedPlayer = game:GetService("Players").LocalPlayer
 		end,
 		Options = {}
 	})
