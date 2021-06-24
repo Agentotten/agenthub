@@ -84,11 +84,11 @@ do -- Local Tab
 	})
 
 	-- Infinite Jump Loop
-	spawn(game:GetService("UserInputService").JumpRequest:Connect(function()
+	game:GetService("UserInputService").JumpRequest:Connect(function()
 		if getgenv().InfiniteJumpEnabled == true then
 			game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
 		end
-	end))
+	end)
 end
 
 do -- Teleport Tab
@@ -99,35 +99,35 @@ do -- Teleport Tab
 	local TeleportToButton = TeleportTab.Button({ -- Teleport To
 		Text = "Teleport To",
 		Callback = function()
-			game:GetService("Players").LocalPlayer.Character.PrimaryPart.CFrame = CFrame.new(getgenv().SelectedPlayer.Character.PrimaryPart.Position)
+			game:GetService("Players").LocalPlayer.Character.PrimaryPart.CFrame = getgenv().SelectedPlayer.Character.PrimaryPart.CFrame + Vector3.new(3,1,0)
 		end
 	})
 
-	local PlayerList = TeleportTab.Dropdown({
+	local PlayerListDropDown = TeleportTab.Dropdown({
 		Text = "Select Player",
 		Callback = function(value)
 			for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
 				if plr.Name == value then
 					getgenv().SelectedPlayer = plr
-					TeleportToButton:SetText("Teleport To " .. plr.Name)
+					return
 				end
 			end
+			getgenv().SelectedPlayer = game:GetService("Players").LocalPlayer
 		end,
-		Options = {"Agentotten"}
+		Options = {}
 	})
 
-	local function UpdatePlayerList()
+	local function UpdatePlayerListDropDown()
 		local players = {}
 		for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
 			table.insert(players, plr.Name)
 		end
-		PlayerList:SetOptions(players)
+		PlayerListDropDown:SetOptions(players)
 	end
 
-	UpdatePlayerList()
-
-	game:GetService("Players").PlayerAdded:Connect(UpdatePlayerList)
-	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerList)
+	UpdatePlayerListDropDown()
+	game:GetService("Players").PlayerAdded:Connect(UpdatePlayerListDropDown)
+	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerListDropDown)
 end
 
 do -- Scripts
