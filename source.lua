@@ -11,14 +11,14 @@ local Window = Material.Load({
 
 local Scripts = {
 	Infinite_Yield = {
-		Name = "Infinite Yield",
+		Name = "Infinite Yield FE",
 		Source = function()
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
 	},
 
 	Hydroxide = {
-		Name = "Hydroxide",
+		Name = "Hydroxide - Remote Spy",
 		Source = function()
 			Window.Banner({
 				Text = "Hydroxide might take a while to load",
