@@ -101,12 +101,6 @@ do -- Scripts
 	end
 end
 
-do -- Remote Spy
-	local RemoteSpyTab = Window.New({
-		Title = "Remote Spy"
-	})
-end
-
 do -- Credits
     local CreditsTab = Window.New({
         Title = "Credits"
@@ -115,12 +109,22 @@ do -- Credits
     CreditsTab.Button({ -- Programmer
         Text = "Programmer: Agentotten#2610",
         Callback = function()
-        end
+        end,
+		Menu = {
+			Copy = function()
+				setclipboard("Agentotten#2610")
+			end
+		}
     })
 
     CreditsTab.Button({ -- UI Design
         Text = "UI Design: Material Lua - Twink Marie",
         Callback = function()
-        end
+        end,
+		Menu = {
+			Copy = function()
+				setclipboard("https://materiallua.ml")
+			end
+		}
     })
 end
