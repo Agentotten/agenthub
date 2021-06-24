@@ -2,7 +2,7 @@ local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinl
 -- local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/boop71/cappuccino/main/v3/notification.lua"))()
 
 local Window = Material.Load({
-	Title = "Agent Hub",
+	Title = "AgentHub",
 	Style = 1,
 	SizeX = 500,
 	SizeY = 350,
