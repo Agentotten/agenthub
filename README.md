@@ -1,19 +1,11 @@
 ## Script
 ```Lua
 getgenv().Games = {
-	Jailbreak = {
-		Name = "Jailbreak",
-
-		Source = function()
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Jailbreak/Jailbreak"))()
-		end,
-
-        GameID = 606849621
-	}
+	
 }
 
 getgenv().Scripts = {
-    Infinite_Yield = {
+    Infinite_Yield = { -- https://infyield.yolasite.com/
 		Name = "Infinite Yield FE",
 
 		Source = function()
@@ -21,7 +13,7 @@ getgenv().Scripts = {
 		end
 	},
 
-	Hydroxide = {
+	Hydroxide = { -- https://github.com/Upbolt/Hydroxide
 		Name = "Hydroxide - Remote Spy",
 
 		Source = function()
