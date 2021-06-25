@@ -27,7 +27,7 @@ do -- Farming Tab
                             game:GetService("ReplicatedStorage").Remotes.Sell:FireServer("Sell")
                         end
                     end
-                    game.ReplicatedStorage.Remotes.OnLift:FireServer()
+                    game:GetService("ReplicatedStorage").Remotes.OnLift:FireServer()
                 end)
             else
                 if AutoFarmStrengthLoop ~= nil then
