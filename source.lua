@@ -197,33 +197,37 @@ do -- Exclusive Games Tab
 end
 
 do -- Games Tab
-	local GamesTab = Window.New({
-		Title = "Games"
-	})
-
-	for _, v in pairs(getgenv().Games) do -- Games loader very fancy
-		GamesTab.Button({
-			Text = v.Name,
-			Callback = v.Source,
-			Menu = {
-				Join = function()
-					game:GetService("TeleportService"):Teleport(v.GameID)
-				end
-			}
+	if getgenv().Games then
+		local GamesTab = Window.New({
+			Title = "Games"
 		})
+	
+		for _, v in pairs(getgenv().Games) do -- Games loader very fancy
+			GamesTab.Button({
+				Text = v.Name,
+				Callback = v.Source,
+				Menu = {
+					Join = function()
+						game:GetService("TeleportService"):Teleport(v.GameID)
+					end
+				}
+			})
+		end
 	end
 end
 
 do -- Scripts Tab
-	local ScriptsTab = Window.New({
-		Title = "Scripts"
-	})
-
-	for _, v in pairs(getgenv().Scripts) do -- Scripts loader also very fancy
-		ScriptsTab.Button({
-			Text = v.Name,
-			Callback = v.Source
+	if getgenv().Scripts then
+		local ScriptsTab = Window.New({
+			Title = "Scripts"
 		})
+	
+		for _, v in pairs(getgenv().Scripts) do -- Scripts loader also very fancy
+			ScriptsTab.Button({
+				Text = v.Name,
+				Callback = v.Source
+			})
+		end
 	end
 end
 
