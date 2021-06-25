@@ -9,8 +9,8 @@ local Window = Material.Load({
 })
 
 do -- Farming Tab
-    local AutoFarmStrengthLoop = nil
     local AutoSellEnabled = false
+    local AutoFarmStrengthLoop = nil
 
     local FarmingTab = Window.New({
         Title = "Farming"
