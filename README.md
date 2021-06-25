@@ -5,7 +5,7 @@ getgenv().Games = {
 }
 
 getgenv().Scripts = {
-    Infinite_Yield = { -- https://infyield.yolasite.com/
+    Infinite_Yield = { -- https://infyield.yolasite.com
 		Name = "Infinite Yield FE",
 
 		Source = function()
