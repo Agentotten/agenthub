@@ -30,14 +30,13 @@ local Scripts = {
 }
 
 local Games = {
-	Jailbreak = {
-		Name = "Jailbreak",
+	LiftingTitans = {
+		Name = "Lifting Titans",
 		Source = function()
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Jailbreak/Jailbreak"))()
-		end
-	},
-
-	
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/games/liftingtitans.lua"))()
+		end,
+		GameID = 6531005851
+	}
 }
 
 do -- Local Tab
@@ -199,7 +198,7 @@ do -- Teleport Tab
 	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerListDropDown)
 end
 
-do -- Games
+do -- Games Tab
 	local GamesTab = Window.New({
 		Title = "Games"
 	})
@@ -207,12 +206,17 @@ do -- Games
 	for _, v in pairs(Games) do -- Games loader very fancy
 		GamesTab.Button({
 			Text = v.Name,
-			Callback = v.Source
+			Callback = v.Source,
+			Menu = {
+				Join = function()
+					game:GetService("TeleportService"):Teleport(v.GameID)
+				end
+			}
 		})
 	end
 end
 
-do -- Scripts
+do -- Scripts Tab
 	local ScriptsTab = Window.New({
 		Title = "Scripts"
 	})
@@ -225,7 +229,7 @@ do -- Scripts
 	end
 end
 
-do -- Credits
+do -- Credits Tab
     local CreditsTab = Window.New({
         Title = "Credits"
     })
