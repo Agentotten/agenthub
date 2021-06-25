@@ -29,6 +29,17 @@ local Scripts = {
 	}
 }
 
+local Games = {
+	Jailbreak = {
+		Name = "Jailbreak",
+		Source = function()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Jailbreak/Jailbreak"))()
+		end
+	},
+
+	
+}
+
 do -- Local Tab
 	local DefaultJumpPower = game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower
 	local InfiniteJumpEnabled = false
@@ -188,12 +199,25 @@ do -- Teleport Tab
 	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerListDropDown)
 end
 
+do -- Games
+	local GamesTab = Window.New({
+		Title = "Games"
+	})
+
+	for _, v in pairs(Games) do -- Games loader very fancy
+		GamesTab.Button({
+			Text = v.Name,
+			Callback = v.Source
+		})
+	end
+end
+
 do -- Scripts
 	local ScriptsTab = Window.New({
 		Title = "Scripts"
 	})
 
-	for _, v in pairs(Scripts) do -- Scripts loader very fancy
+	for _, v in pairs(Scripts) do -- Scripts loader also very fancy
 		ScriptsTab.Button({
 			Text = v.Name,
 			Callback = v.Source
