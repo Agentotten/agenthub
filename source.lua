@@ -9,27 +9,7 @@ local Window = Material.Load({
 	Theme = "Dark"
 })
 
-local Scripts = {
-	Infinite_Yield = {
-		Name = "Infinite Yield FE",
-		Source = function()
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-		end
-	},
-
-	Hydroxide = {
-		Name = "Hydroxide - Remote Spy",
-		Source = function()
-			Window.Banner({
-				Text = "Hydroxide might take a while to load",
-			})
-			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "init")), "init" .. ".lua")()
-			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "ui/main")), "ui/main" .. ".lua")()
-		end
-	}
-}
-
-local Games = {
+local ExclusiveGames = {
 	LiftingTitans = {
 		Name = "Lifting Titans",
 		Source = function()
@@ -198,12 +178,30 @@ do -- Teleport Tab
 	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerListDropDown)
 end
 
+do -- Exclusive Games Tab
+	local ExclusiveGamesTab = Window.New({
+		Title = "Exclusive Games"
+	})
+
+	for _, v in pairs(ExclusiveGames) do -- Games loader very fancy
+		ExclusiveGamesTab.Button({
+			Text = v.Name,
+			Callback = v.Source,
+			Menu = {
+				Join = function()
+					game:GetService("TeleportService"):Teleport(v.GameID)
+				end
+			}
+		})
+	end
+end
+
 do -- Games Tab
 	local GamesTab = Window.New({
 		Title = "Games"
 	})
 
-	for _, v in pairs(Games) do -- Games loader very fancy
+	for _, v in pairs(getgenv().Games) do -- Games loader very fancy
 		GamesTab.Button({
 			Text = v.Name,
 			Callback = v.Source,
@@ -221,7 +219,7 @@ do -- Scripts Tab
 		Title = "Scripts"
 	})
 
-	for _, v in pairs(Scripts) do -- Scripts loader also very fancy
+	for _, v in pairs(getgenv().Scripts) do -- Scripts loader also very fancy
 		ScriptsTab.Button({
 			Text = v.Name,
 			Callback = v.Source
