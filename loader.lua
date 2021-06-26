@@ -26,4 +26,7 @@ else
     makefolder("AgentHub")
 end
 
+getgenv().Scripts = LoadedScripts
+getgenv().GameScripts = LoadedGameScripts
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/source.lua"))()
