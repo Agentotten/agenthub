@@ -9,13 +9,12 @@ local Window = Material.Load({
 	Theme = "Dark"
 })
 
-local ExclusiveGames = {
+local ExclusiveGameScripts = {
 	LiftingTitans = {
 		Name = "Lifting Titans",
 		Source = function()
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/games/liftingtitans.lua"))()
-		end,
-		GameID = 6531005851
+		end
 	}
 }
 
@@ -183,34 +182,24 @@ do -- Exclusive Games Tab
 		Title = "Exclusive Games"
 	})
 
-	for _, v in pairs(ExclusiveGames) do -- Games loader very fancy
+	for _, v in pairs(ExclusiveGameScripts) do -- Games loader very fancy
 		ExclusiveGamesTab.Button({
 			Text = v.Name,
-			Callback = v.Source,
-			Menu = {
-				Join = function()
-					game:GetService("TeleportService"):Teleport(v.GameID)
-				end
-			}
+			Callback = v.Source
 		})
 	end
 end
 
 do -- Games Tab
-	if getgenv().Games then
+	if getgenv().GameScripts then
 		local GamesTab = Window.New({
 			Title = "Games"
 		})
 	
-		for _, v in pairs(getgenv().Games) do -- Games loader very fancy
+		for _, v in pairs(getgenv().GameScripts) do -- Games loader very fancy
 			GamesTab.Button({
 				Text = v.Name,
-				Callback = v.Source,
-				Menu = {
-					Join = function()
-						game:GetService("TeleportService"):Teleport(v.GameID)
-					end
-				}
+				Callback = v.Source
 			})
 		end
 	end
