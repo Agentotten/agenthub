@@ -1,34 +1,26 @@
 ## Script
-``` Lua
-local LoadedScripts = {}
-local LoadedGameScripts = {}
+```Lua
+getgenv().Scripts = {
+    Infinite_Yield = {
+		Name = "Infinite Yield FE",
 
-local function ReadScripts(path, output)
-    for _, v in pairs(listfiles(path)) do
-        if isfile(v) then
-            local src = loadfile(v)()
-            table.insert(output, src)
-        end
-    end
-end
+		Source = function()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+		end
+	},
 
-if isfolder("AgentHub") then
-    if isfolder("AgentHub/scripts") then
-        ReadScripts("AgentHub/scripts", LoadedScripts)
-    else
-        makefolder("AgentHub/scripts")
-    end
+	Hydroxide = {
+		Name = "Hydroxide - Remote Spy",
 
-    if isfolder("AgentHub/gamescripts") then
-        ReadScripts("AgentHub/gamescripts", LoadedGameScripts)
-    else
-        makefolder("AgentHub/gamescripts")
-    end
-else
-    makefolder("AgentHub")
-end
+		Source = function()
+			Window.Banner({
+				Text = "Hydroxide might take a while to load",
+			})
+			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "init")), "init" .. ".lua")()
+			loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format("Upbolt", "revision", "ui/main")), "ui/main" .. ".lua")()
+		end
+	}
+}
 
-getgenv().Scripts = LoadedScripts
-getgenv().GameScripts = LoadedGameScripts
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/source.lua"))()
 ```
