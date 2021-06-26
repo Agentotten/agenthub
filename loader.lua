@@ -26,7 +26,4 @@ else
     makefolder("AgentHub")
 end
 
-if #LoadedScripts > 0 then getgenv().Scripts = LoadedScripts end
-if #LoadedGameScripts > 0 then getgenv().GameScripts = LoadedGameScripts end
-
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/source.lua"))()

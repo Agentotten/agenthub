@@ -191,7 +191,7 @@ do -- Exclusive Games Tab
 end
 
 do -- Games Tab
-	if getgenv().GameScripts then
+	if getgenv().GameScripts and #getgenv().GameScripts > 0 then
 		local GamesTab = Window.New({
 			Title = "Games"
 		})
@@ -206,7 +206,7 @@ do -- Games Tab
 end
 
 do -- Scripts Tab
-	if getgenv().Scripts then
+	if getgenv().Scripts and #getgenv().Scripts > 0 then
 		local ScriptsTab = Window.New({
 			Title = "Scripts"
 		})
