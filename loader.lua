@@ -10,20 +10,20 @@ local function ReadScripts(path, output)
     end
 end
 
-if isfolder("AgentHub") then
-    if isfolder("AgentHub/scripts") then
-        ReadScripts("AgentHub/scripts", LoadedScripts)
-    else
-        makefolder("AgentHub/scripts")
-    end
-
-    if isfolder("AgentHub/gamescripts") then
-        ReadScripts("AgentHub/gamescripts", LoadedGameScripts)
-    else
-        makefolder("AgentHub/gamescripts")
-    end
-else
+if not isfolder("AgentHub") then
     makefolder("AgentHub")
+end
+
+if isfolder("AgentHub/scripts") then
+    ReadScripts("AgentHub/scripts", LoadedScripts)
+else
+    makefolder("AgentHub/scripts")
+end
+
+if isfolder("AgentHub/gamescripts") then
+    ReadScripts("AgentHub/gamescripts", LoadedGameScripts)
+else
+    makefolder("AgentHub/gamescripts")
 end
 
 getgenv().Scripts = LoadedScripts
