@@ -1,4 +1,4 @@
 ## Script
 ``` Lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/loader.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/master/loader.lua"))()
 ```
