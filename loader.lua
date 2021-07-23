@@ -1,18 +1,22 @@
-local Mixer = loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/mixer/master/source.lua"))()
+local Mixer = loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/mixer/main/mixer.lua"))()
+
+local ProjectFolder = Mixer:AddProject("AgentHub")
+local ScriptsFolder = ProjectFolder:AddFolder("Scripts")
+local GameScriptsFolder = ProjectFolder:AddFolder("GameScripts")
 
 local Scripts = {}
 local GameScripts = {}
 
-Mixer:AddProject("AgentHub")
-Mixer:AddFolder("Scripts")
-Mixer:AddFolder("GameScripts")
-
-for _, Script in pairs(Mixer:ListScripts("Scripts", "AgentHub")) do
-    table.insert(Scripts, Script())
+for _, Script in pairs(ScriptsFolder:ListFiles()) do
+    if Script.Type == "file" then
+        table.insert(Scripts, Script())
+    end
 end
 
-for _, Script in pairs(Mixer:ListScripts("GameScripts", "AgentHub")) do
-    table.insert(GameScripts, Script())
+for _, GameScript in pairs(GameScriptsFolder:ListFiles()) do
+    if GameScript.Type == "file" then
+        table.insert(GameScripts, GameScript())
+    end
 end
 
 getgenv().Scripts = Scripts
