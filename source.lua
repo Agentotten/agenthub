@@ -23,6 +23,20 @@ return function(scripts, gameScripts)
         GetRoot().CFrame = cframe
     end
 
+    local Keys = {}
+
+    game:GetService("UserInputService").InputBegan:Connect(function(input, proccessed)
+        if proccessed then return end
+        local key = string.split(tostring(input.KeyCode), ".")[3]
+        Keys[key] = true
+    end)
+
+    game:GetService("UserInputService").InputEnded:Connect(function(input, proccessed)
+        if proccessed then return end
+        local key = string.split(tostring(input.KeyCode), ".")[3]
+        if Keys[key] then Keys[key] = false end
+    end)
+
     local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
     local Window = Material.Load({
@@ -54,12 +68,7 @@ return function(scripts, gameScripts)
             end,
             Min = 0,
             Max = 1000,
-            Def = GetHumanoid().WalkSpeed,
-            Menu = {
-                Reset = function(self)
-                    GetHumanoid().WalkSpeed = defaultWalkSpeed
-                end
-            }
+            Def = GetHumanoid().WalkSpeed
         })
 
         CharacterPage.Slider({ -- JumpPower Slider
@@ -69,12 +78,7 @@ return function(scripts, gameScripts)
             end,
             Min = 0,
             Max = 1000,
-            Def = GetHumanoid().JumpPower,
-            Menu = {
-                Reset = function(self)
-                    GetHumanoid().JumpPower = defaultJumpPower
-                end
-            }
+            Def = GetHumanoid().JumpPower
         })
 
         CharacterPage.Slider({ -- Fly Speed Slider
@@ -108,25 +112,25 @@ return function(scripts, gameScripts)
                         local newPos = (bodyG.CFrame - (bodyG.CFrame).Position) + bodyP.Position
                         local coordinateFrame = workspace.CurrentCamera.CFrame
 
-                        if game:GetService("UserInputService"):IsKeyDown("W") then
+                        if Keys["W"] then
                             newPos = newPos + coordinateFrame.LookVector * flySpeed
 
                             bodyP.Position = (GetRoot().CFrame * CFrame.new(0, 0, -flySpeed)).Position;
                             bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(flySpeed * 15), 0, 0);
                         end
 
-                        if game:GetService("UserInputService"):IsKeyDown("A") then
+                        if Keys["A"] then
                             newPos = newPos * CFrame.new(-flySpeed, 0, 0);
                         end
 
-                        if game:GetService("UserInputService"):IsKeyDown("S") then
+                        if Keys["S"] then
                             newPos = newPos - coordinateFrame.LookVector * flySpeed
 
                             bodyP.Position = (GetRoot().CFrame * CFrame.new(0, 0, flySpeed)).Position;
                             bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(flySpeed * 15), 0, 0);
                         end
 
-                        if game:GetService("UserInputService"):IsKeyDown("D") then
+                        if Keys["D"] then
                             newPos = newPos * CFrame.new(flySpeed, 0, 0);
                         end
 
