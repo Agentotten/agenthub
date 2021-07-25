@@ -19,7 +19,7 @@ for _, gs in pairs(GameScriptsFolder:ListFiles()) do
     end
 end
 
-getgenv().agenthub.scripts = scripts
-getgenv().agenthub.gameScripts = gameScripts
+getgenv().agenthubScripts = scripts
+getgenv().agenthubGameScripts = gameScripts
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/master/source.lua"))()

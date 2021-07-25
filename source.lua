@@ -218,12 +218,12 @@ do -- Teleport Page
 end
 
 do -- Games Page
-	if getgenv().agenthub.gameScripts and #getgenv().agenthub.gameScripts > 0 then
+	if getgenv().agenthubGameScripts and #getgenv().agenthubGameScripts > 0 then
 		local GameScriptsPage = Window.New({
 			Title = "Games"
 		})
 	
-		for _, gs in pairs(getgenv().agenthub.gameScripts) do
+		for _, gs in pairs(getgenv().agenthubGameScripts) do
 			GameScriptsPage.Button({
 				Text = gs.Name,
 				Callback = gs
@@ -233,12 +233,12 @@ do -- Games Page
 end
 
 do -- Scripts Page
-	if getgenv().agenthub.scripts and #getgenv().agenthub.scripts > 0 then
+	if getgenv().agenthubScripts and #getgenv().agenthubScripts > 0 then
 		local ScriptsPage = Window.New({
 			Title = "Scripts"
 		})
 	
-		for _, s in pairs(getgenv().agenthub.scripts) do
+		for _, s in pairs(getgenv().agenthubScripts) do
 			ScriptsPage.Button({
 				Text = s.Name,
 				Callback = s
