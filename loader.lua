@@ -8,7 +8,7 @@ local scripts = {}
 local gameScripts = {}
 
 coroutine.resume(coroutine.create(function()
-    for _, s in pairs(ScriptsFolder:ListFiles()) do
+    for _, s in pairs(ScriptsFolder:GetChildren()) do
         if s.Type == "file" then
             table.insert(scripts, s)
         end
@@ -16,7 +16,7 @@ coroutine.resume(coroutine.create(function()
 end))
 
 coroutine.resume(coroutine.create(function()
-    for _, gs in pairs(GameScriptsFolder:ListFiles()) do
+    for _, gs in pairs(GameScriptsFolder:GetChildren()) do
         if gs.Type == "file" then
             table.insert(gameScripts, gs)
         end
