@@ -7,16 +7,20 @@ local GameScriptsFolder = ProjectFolder:AddFolder("GameScripts")
 local scripts = {}
 local gameScripts = {}
 
-for _, s in pairs(ScriptsFolder:ListFiles()) do
-    if s.Type == "file" then
-        table.insert(scripts, s)
+coroutine.resume(coroutine.create(function()
+    for _, s in pairs(ScriptsFolder:ListFiles()) do
+        if s.Type == "file" then
+            table.insert(scripts, s)
+        end
     end
-end
+end))
 
-for _, gs in pairs(GameScriptsFolder:ListFiles()) do
-    if gs.Type == "file" then
-        table.insert(gameScripts, gs)
+coroutine.resume(coroutine.create(function()
+    for _, gs in pairs(GameScriptsFolder:ListFiles()) do
+        if gs.Type == "file" then
+            table.insert(gameScripts, gs)
+        end
     end
-end
+end))
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/master/source.lua"))()(scripts, gameScripts)
