@@ -1,5 +1,28 @@
+local function GetPlayer(name)
+	if name then return game:GetService("Players")[name] end
+	return game:GetService("Players").LocalPlayer
+end
+
+local function GetCharacter(name)
+	if name then return GetPlayer(name).Character or GetPlayer(name).CharacterAdded:Wait() end
+	return GetPlayer().Character or GetPlayer().CharacterAdded:Wait()
+end
+
+local function GetHumanoid(name)
+	if name then return GetCharacter(name):FindFirstChild("Humanoid") or GetCharacter(name):WaitForChild("Humanoid") end
+	return GetCharacter():FindFirstChild("Humanoid") or GetCharacter():WaitForChild("Humanoid")
+end
+
+local function GetRoot(name)
+	if name then return GetCharacter(name):FindFirstChild("HumanoidRootPart") or GetCharacter(name):WaitForChild("HumanoidRootPart") end
+	return GetCharacter():FindFirstChild("HumanoidRootPart") or GetCharacter():WaitForChild("HumanoidRootPart")
+end
+
+local function Teleport(cframe)
+	GetRoot().CFrame = cframe
+end
+
 local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
--- local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/boop71/cappuccino/main/v3/notification.lua"))()
 
 local Window = Material.Load({
 	Title = "AgentHub",
@@ -9,241 +32,233 @@ local Window = Material.Load({
 	Theme = "Dark"
 })
 
-local ExclusiveGameScripts = {
-	LiftingTitans = {
-		Name = "Lifting Titans",
-		Source = function()
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/beta/games/liftingtitans.lua"))()
-		end
-	}
-}
+do -- Character Page
+	local defaultWalkSpeed = GetHumanoid().WalkSpeed
+	local defaultJumpPower = GetHumanoid().JumpPower
+	local flyLoop = nil
+	local flySpeed = 1
+	local bodyP = nil
+	local bodyG = nil
+	local noclipLoop = nil
+	local infiniteJumpEnabled = false
 
-do -- Local Tab
-	local DefaultJumpPower = game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower
-	local InfiniteJumpEnabled = false
-	local FlyEnabled = false
-	local NoclipLoop = nil
-	local FlyLoop = nil
-
-	local LocalTab = Window.New({
-		Title = "Local"
+	local CharacterPage = Window.New({
+		Title = "Character"
 	})
 
-	LocalTab.Slider({ -- Walk Speed
-		Text = "Walk Speed",
+	CharacterPage.Slider({ -- WalkSpeed Slider
+		Text = "WalkSpeed",
 		Callback = function(value)
-			game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed = value
+			GetHumanoid().WalkSpeed = value
 		end,
 		Min = 0,
 		Max = 1000,
-		Def = game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed
+		Def = GetHumanoid().WalkSpeed,
+		Menu = {
+			Reset = function(self)
+				GetHumanoid().WalkSpeed = defaultWalkSpeed
+			end
+		}
 	})
 
-	LocalTab.Slider({ -- Jump Power
-		Text = "Jump Power",
+	CharacterPage.Slider({ -- JumpPower Slider
+		Text = "JumpPower",
 		Callback = function(value)
-			game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = value
+			GetHumanoid().JumpPower = value
 		end,
 		Min = 0,
 		Max = 1000,
-		Def = game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower
+		Def = GetHumanoid().JumpPower,
+		Menu = {
+			Reset = function(self)
+				GetHumanoid().JumpPower = defaultJumpPower
+			end
+		}
 	})
 
-	LocalTab.Toggle({ -- Infinite Jump
-		Text = "Infinite Jump",
+	CharacterPage.Slider({ -- Fly Speed Slider
+		Text = "Fly Speed",
 		Callback = function(value)
-			InfiniteJumpEnabled = value
+			flySpeed = value
+		end,
+		Min = 0,
+		Max = 100,
+		Def = 1
+	})
+
+	CharacterPage.Toggle({ -- Fly Toggle
+		Text = "Fly",
+		Callback = function(value)
+			if value then
+				bodyP = Instance.new("BodyPosition")
+				bodyG = Instance.new("BodyGyro")
+
+				bodyP.MaxForce = Vector3.new(1, 1, 1) * math.huge
+				bodyG.MaxTorque = Vector3.new(1, 1, 1) * 9e9
+				bodyP.Position = GetRoot().Position
+				bodyG.CFrame = GetRoot().CFrame
+
+				bodyP.Parent = GetRoot()
+				bodyG.Parent = GetRoot()
+
+				GetHumanoid().PlatformStand = true
+
+				flyLoop = game:GetService("RunService").Stepped:Connect(function()
+					local newPos = (bodyG.CFrame - (bodyG.CFrame).Position) + bodyP.Position
+            		local coordinateFrame = workspace.CurrentCamera.CFrame
+
+					if game:GetService("UserInputService"):IsKeyDown("W") then
+						newPos = newPos + coordinateFrame.LookVector * flySpeed
+			
+						bodyP.Position = (GetRoot().CFrame * CFrame.new(0, 0, -flySpeed)).Position;
+						bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(flySpeed * 15), 0, 0);
+					end
+			
+					if game:GetService("UserInputService"):IsKeyDown("A") then
+						newPos = newPos * CFrame.new(-flySpeed, 0, 0);
+					end
+			
+					if game:GetService("UserInputService"):IsKeyDown("S") then
+						newPos = newPos - coordinateFrame.LookVector * flySpeed
+			
+						bodyP.Position = (GetRoot().CFrame * CFrame.new(0, 0, flySpeed)).Position;
+						bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(flySpeed * 15), 0, 0);
+					end
+			
+					if game:GetService("UserInputService"):IsKeyDown("D") then
+						newPos = newPos * CFrame.new(flySpeed, 0, 0);
+					end
+			
+					bodyP.Position = newPos.Position
+					bodyG.CFrame = coordinateFrame
+				end)
+			else
+				if flyLoop then
+					bodyP:Destroy()
+					bodyG:Destroy()
+					GetHumanoid().PlatformStand = false
+					flyLoop:Disconnect()
+				end
+			end
 		end,
 		Enabled = false
 	})
 
-	LocalTab.Toggle({ -- Noclip
+	CharacterPage.Toggle({ -- Noclip Toggle
 		Text = "Noclip",
 		Callback = function(value)
-			if value == true then
-				NoclipLoop = game:GetService("RunService").Stepped:Connect(function()
-					for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+			if value then
+				noclipLoop = game:GetService("RunService").Stepped:Connect(function()
+					for _, v in pairs(GetCharacter():GetDescendants()) do
 						if v:IsA("BasePart") and v.CanCollide == true then
 							v.CanCollide = false
 						end
 					end
 				end)
 			else
-				if NoclipLoop ~= nil then
-					NoclipLoop:Disconnect()
+				if noclipLoop then
+					noclipLoop:Disconnect()
 				end
 			end
 		end,
 		Enabled = false
 	})
 
-	LocalTab.Toggle({ -- Fly
-		Text = "Fly",
+	CharacterPage.Toggle({ -- Infinite Jump Toggle
+		Text = "Infinite Jump",
 		Callback = function(value)
-			if value == true then
-				DefaultJumpPower = game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower
-				FlyEnabled = true
-				game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-				game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = 0.45
-				FlyLoop = game:GetService("RunService").Stepped:Connect(function()
-					game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-				end)
-			else
-				if FlyLoop ~= nil then
-					FlyLoop:Disconnect()
-					FlyEnabled = false
-					game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = DefaultJumpPower
-				end
-			end
+			infiniteJumpEnabled = value
 		end,
 		Enabled = false
 	})
 
 	game:GetService("UserInputService").JumpRequest:Connect(function()
-		if InfiniteJumpEnabled == true then
+		if infiniteJumpEnabled then
 			game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-		end
-	end)
-
-	game:GetService("UserInputService").InputBegan:Connect(function(input)
-		if input.KeyCode == Enum.KeyCode.Space then
-			if FlyEnabled == true then
-				game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = 25
-			end
-			
-		elseif input.KeyCode == Enum.KeyCode.LeftControl then
-			if FlyEnabled == true then
-				if FlyLoop ~= nil then
-					FlyLoop:Disconnect()
-				end
-			end
-		end
-	end)
-
-	game:GetService("UserInputService").InputEnded:Connect(function(input)
-		if input.KeyCode == Enum.KeyCode.Space then
-			if FlyEnabled == true then
-				game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = 0.45
-			end
-			
-		elseif input.KeyCode == Enum.KeyCode.LeftControl then
-			if FlyEnabled == true then
-				FlyLoop = game:GetService("RunService").Stepped:Connect(function()
-					game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-				end)
-			end
 		end
 	end)
 end
 
-do -- Teleport Tab
-	local SelectedPlayer = nil
+do -- Teleport Page
+	local selectedPlayer = nil
 
-	local TeleportTab = Window.New({
+	local TeleportPage = Window.New({
 		Title = "Teleport"
 	})
 
-	local TeleportToButton = TeleportTab.Button({ -- Teleport To
+	TeleportPage.Button({ -- Teleport To Button
 		Text = "Teleport To",
 		Callback = function()
-			game:GetService("Players").LocalPlayer.Character.PrimaryPart.CFrame = SelectedPlayer.Character.PrimaryPart.CFrame + Vector3.new(3,1,0)
+			Teleport(GetRoot(selectedPlayer).CFrame * CFrame.new(0, 0, 2))
 		end
 	})
 
-	local PlayerListDropDown = TeleportTab.Dropdown({ -- Select Player
+	local PlayerListDropdown = TeleportPage.Dropdown({ -- Player List Dropdown
 		Text = "Select Player",
 		Callback = function(value)
-			for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-				if plr.Name == value then
-					SelectedPlayer = plr
-					TeleportToButton:SetText("Teleport To " .. plr.Name)
-					return
-				end
-			end
+			selectedPlayer = value
 		end,
 		Options = {}
 	})
 
-	local function UpdatePlayerListDropDown()
+	local function UpdatePlayerList()
 		local players = {}
-		for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-			table.insert(players, plr.Name)
+
+		for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+			table.insert(players, player.Name)
 		end
-		PlayerListDropDown:SetOptions(players)
+
+		PlayerListDropdown:SetOptions(players)
 	end
 
-	UpdatePlayerListDropDown()
-	game:GetService("Players").PlayerAdded:Connect(UpdatePlayerListDropDown)
-	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerListDropDown)
+	spawn(UpdatePlayerList)
+
+	game:GetService("Players").PlayerAdded:Connect(UpdatePlayerList)
+	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerList)
 end
 
-do -- Exclusive Games Tab
-	local ExclusiveGamesTab = Window.New({
-		Title = "Exclusive Games"
-	})
-
-	for _, v in pairs(ExclusiveGameScripts) do -- Games loader very fancy
-		ExclusiveGamesTab.Button({
-			Text = v.Name,
-			Callback = v.Source
-		})
-	end
-end
-
-do -- Games Tab
-	if getgenv().GameScripts and #getgenv().GameScripts > 0 then
-		local GamesTab = Window.New({
+do -- Games Page
+	if getgenv().agenthub.gameScripts and #getgenv().agenthub.gameScripts > 0 then
+		local GameScriptsPage = Window.New({
 			Title = "Games"
 		})
 	
-		for _, v in pairs(getgenv().GameScripts) do -- Games loader very fancy
-			GamesTab.Button({
-				Text = v.Name,
-				Callback = v.Source
+		for _, gs in pairs(getgenv().agenthub.gameScripts) do
+			GameScriptsPage.Button({
+				Text = gs.Name,
+				Callback = gs
 			})
 		end
 	end
 end
 
-do -- Scripts Tab
-	if getgenv().Scripts and #getgenv().Scripts > 0 then
-		local ScriptsTab = Window.New({
+do -- Scripts Page
+	if getgenv().agenthub.scripts and #getgenv().agenthub.scripts > 0 then
+		local ScriptsPage = Window.New({
 			Title = "Scripts"
 		})
 	
-		for _, v in pairs(getgenv().Scripts) do -- Scripts loader also very fancy
-			ScriptsTab.Button({
-				Text = v.Name,
-				Callback = v.Source
+		for _, s in pairs(getgenv().agenthub.scripts) do
+			ScriptsPage.Button({
+				Text = s.Name,
+				Callback = s
 			})
 		end
 	end
 end
 
-do -- Credits Tab
-    local CreditsTab = Window.New({
+do -- Credits Page
+    local CreditsPage = Window.New({
         Title = "Credits"
     })
 
-    CreditsTab.Button({ -- Programmer
+    CreditsPage.Button({ -- Programmer Credits
         Text = "Programmer: Agentotten#2610",
-        Callback = function()
-        end,
-		Menu = {
-			Copy = function()
-				setclipboard("Agentotten#2610")
-			end
-		}
+        Callback = function() end
     })
 
-    CreditsTab.Button({ -- UI Design
+    CreditsPage.Button({ -- UI Design Credits
         Text = "UI Design: Material Lua - Twink Marie",
-        Callback = function()
-        end,
-		Menu = {
-			Copy = function()
-				setclipboard("https://materiallua.ml")
-			end
-		}
+        Callback = function() end
     })
 end
