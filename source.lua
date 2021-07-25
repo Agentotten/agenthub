@@ -219,7 +219,7 @@ return function(scripts, gameScripts)
     end
     
     do -- Games Page
-        if gameScripts and gameScripts > 0 then
+        if gameScripts and #gameScripts > 0 then
             local GameScriptsPage = Window.New({
                 Title = "Games"
             })
