@@ -1,270 +1,292 @@
-return function(scripts, gameScripts)
-    local function GetPlayer(name)
-        if name then return game:GetService("Players")[name] end
-        return game:GetService("Players").LocalPlayer
-    end
+local AgentUtils = {Keys = {}} do
+	function AgentUtils:GetPlayer(playerName)
+		if playerName then return game:GetService("Players")[playerName] end
+		return game:GetService("Players").LocalPlayer
+	end
 
-    local function GetCharacter(name)
-        if name then return GetPlayer(name).Character or GetPlayer(name).CharacterAdded:Wait() end
-        return GetPlayer().Character or GetPlayer().CharacterAdded:Wait()
-    end
+	function AgentUtils:GetCharacter(playerName)
+		if playerName then return self:GetPlayer(playerName).Character end
+		return self:GetPlayer().Character
+	end
 
-    local function GetHumanoid(name)
-        if name then return GetCharacter(name):FindFirstChild("Humanoid") or GetCharacter(name):WaitForChild("Humanoid") end
-        return GetCharacter():FindFirstChild("Humanoid") or GetCharacter():WaitForChild("Humanoid")
-    end
+	function AgentUtils:GetHumanoid(playerName)
+		if playerName then return self:GetCharacter(playerName).Humanoid end
+		return self:GetCharacter().Humanoid
+	end
 
-    local function GetRoot(name)
-        if name then return GetCharacter(name):FindFirstChild("HumanoidRootPart") or GetCharacter(name):WaitForChild("HumanoidRootPart") end
-        return GetCharacter():FindFirstChild("HumanoidRootPart") or GetCharacter():WaitForChild("HumanoidRootPart")
-    end
+	function AgentUtils:GetRoot(playerName)
+		if playerName then return self:GetCharacter(playerName).HumanoidRootPart end
+		return self:GetCharacter().HumanoidRootPart
+	end
 
-    local function Teleport(cframe)
-        GetRoot().CFrame = cframe
-    end
+	function AgentUtils:Teleport(position)
+		self:GetRoot().CFrame = position
+	end
 
-    local Keys = {}
+	game:GetService("UserInputService").InputBegan:Connect(function(input, proccessed)
+		if proccessed then return end
+		local key = string.split(tostring(input.KeyCode), ".")[3]
+		AgentUtils.Keys[key] = true
+	end)
+	
+	game:GetService("UserInputService").InputEnded:Connect(function(input, proccessed)
+		if proccessed then return end
+		local key = string.split(tostring(input.KeyCode), ".")[3]
+		if AgentUtils.Keys[key] then AgentUtils.Keys[key] = false end
+	end)
+end
 
-    game:GetService("UserInputService").InputBegan:Connect(function(input, proccessed)
-        if proccessed then return end
-        local key = string.split(tostring(input.KeyCode), ".")[3]
-        Keys[key] = true
-    end)
+local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
-    game:GetService("UserInputService").InputEnded:Connect(function(input, proccessed)
-        if proccessed then return end
-        local key = string.split(tostring(input.KeyCode), ".")[3]
-        if Keys[key] then Keys[key] = false end
-    end)
+local Window = Material.Load({
+	Title = "AgentHub",
+	Style = 1,
+	SizeX = 500,
+	SizeY = 350,
+	Theme = "Dark"
+})
 
-    local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+do -- Character Page
+	getgenv().AgentHub.CanFly = false
+	getgenv().AgentHub.CanNoclip = false
+	getgenv().AgentHub.CanInfJump = false
+	getgenv().AgentHub.FlySpeed = 0.25
 
-    local Window = Material.Load({
-        Title = "AgentHub",
-        Style = 1,
-        SizeX = 500,
-        SizeY = 350,
-        Theme = "Dark"
-    })
+	local CharacterPage = Window.New({
+		Title = "Character"
+	})
 
-    do -- Character Page
-        local defaultWalkSpeed = GetHumanoid().WalkSpeed
-        local defaultJumpPower = GetHumanoid().JumpPower
-        local flyLoop = nil
-        local flySpeed = 1
-        local bodyP = nil
-        local bodyG = nil
-        local noclipLoop = nil
-        local infiniteJumpEnabled = false
+	CharacterPage.Slider({ -- WalkSpeed Slider
+		Text = "WalkSpeed",
+		Callback = function(value)
+			AgentUtils:GetHumanoid().WalkSpeed = value
+		end,
+		Min = 0,
+		Max = 1000,
+		Def = AgentUtils:GetHumanoid().WalkSpeed
+	})
 
-        local CharacterPage = Window.New({
-            Title = "Character"
-        })
+	CharacterPage.Slider({ -- JumpPower Slider
+		Text = "JumpPower",
+		Callback = function(value)
+			AgentUtils:GetHumanoid().JumpPower = value
+		end,
+		Min = 0,
+		Max = 1000,
+		Def = AgentUtils:GetHumanoid().JumpPower
+	})
 
-        CharacterPage.Slider({ -- WalkSpeed Slider
-            Text = "WalkSpeed",
-            Callback = function(value)
-                GetHumanoid().WalkSpeed = value
-            end,
-            Min = 0,
-            Max = 1000,
-            Def = GetHumanoid().WalkSpeed
-        })
+	CharacterPage.Slider({ -- Fly Speed Slider
+		Text = "Fly Speed",
+		Callback = function(value)
+			getgenv().AgentHub.FlySpeed = value * 0.25
+		end,
+		Min = 0,
+		Max = 100,
+		Def = 1
+	})
 
-        CharacterPage.Slider({ -- JumpPower Slider
-            Text = "JumpPower",
-            Callback = function(value)
-                GetHumanoid().JumpPower = value
-            end,
-            Min = 0,
-            Max = 1000,
-            Def = GetHumanoid().JumpPower
-        })
+	CharacterPage.Toggle({ -- Fly Toggle
+		Text = "Fly",
+		Callback = function(value)
+			if value == true then
+				getgenv().AgentHub.CanFly = true
 
-        CharacterPage.Slider({ -- Fly Speed Slider
-            Text = "Fly Speed",
-            Callback = function(value)
-                flySpeed = value
-            end,
-            Min = 0,
-            Max = 100,
-            Def = 1
-        })
+				local root = AgentUtils:GetRoot()
+				local bodyP = Instance.new("BodyPosition")
+				local bodyG = Instance.new("BodyGyro")
 
-        CharacterPage.Toggle({ -- Fly Toggle
-            Text = "Fly",
-            Callback = function(value)
-                if value then
-                    bodyP = Instance.new("BodyPosition")
-                    bodyG = Instance.new("BodyGyro")
+				bodyP.MaxForce = Vector3.new(1, 1, 1) * math.huge
+				bodyP.Position = root.Position
+				bodyP.Parent = root
 
-                    bodyP.MaxForce = Vector3.new(1, 1, 1) * math.huge
-                    bodyG.MaxTorque = Vector3.new(1, 1, 1) * 9e9
-                    bodyP.Position = GetRoot().Position
-                    bodyG.CFrame = GetRoot().CFrame
+				bodyG.MaxTorque = Vector3.new(1, 1, 1) * 9e9
+				bodyG.CFrame = root.CFrame
+				bodyG.Parent = root
 
-                    bodyP.Parent = GetRoot()
-                    bodyG.Parent = GetRoot()
+				AgentUtils:GetHumanoid().PlatformStand = true
 
-                    GetHumanoid().PlatformStand = true
+				local flyLoop flyLoop = game:GetService("RunService").Stepped:Connect(function()
+					if getgenv().AgentHub.CanFly == false then
+						flyLoop:Disconnect()
+						bodyP:Destroy()
+						bodyG:Destroy()
+						AgentUtils:GetHumanoid().PlatformStand = false
+					end
 
-                    flyLoop = game:GetService("RunService").Stepped:Connect(function()
-                        local newPos = (bodyG.CFrame - (bodyG.CFrame).Position) + bodyP.Position
-                        local coordinateFrame = workspace.CurrentCamera.CFrame
+					local newPos = (bodyG.CFrame - (bodyG.CFrame).Position) + bodyP.Position
+					local coordinateFrame = workspace.CurrentCamera.CFrame
 
-                        if Keys["W"] then
-                            newPos = newPos + coordinateFrame.LookVector * flySpeed
+					if AgentUtils.Keys["W"] then
+						newPos = newPos + coordinateFrame.LookVector * getgenv().AgentHub.FlySpeed
 
-                            bodyP.Position = (GetRoot().CFrame * CFrame.new(0, 0, -flySpeed)).Position;
-                            bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(flySpeed * 15), 0, 0);
-                        end
+						bodyP.Position = (root.CFrame * CFrame.new(0, 0, -getgenv().AgentHub.FlySpeed)).Position
+						bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(getgenv().AgentHub.FlySpeed * 15), 0, 0)
+					end
 
-                        if Keys["A"] then
-                            newPos = newPos * CFrame.new(-flySpeed, 0, 0);
-                        end
+					if AgentUtils.Keys["A"] then
+						newPos = newPos * CFrame.new(-getgenv().AgentHub.FlySpeed, 0, 0)
+					end
 
-                        if Keys["S"] then
-                            newPos = newPos - coordinateFrame.LookVector * flySpeed
+					if AgentUtils.Keys["S"] then
+						newPos = newPos - coordinateFrame.LookVector * getgenv().AgentHub.FlySpeed
 
-                            bodyP.Position = (GetRoot().CFrame * CFrame.new(0, 0, flySpeed)).Position;
-                            bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(flySpeed * 15), 0, 0);
-                        end
+						bodyP.Position = (root.CFrame * CFrame.new(0, 0, getgenv().AgentHub.FlySpeed)).Position
+						bodyG.CFrame = coordinateFrame * CFrame.Angles(-math.rad(getgenv().AgentHub.FlySpeed * 15), 0, 0)
+					end
 
-                        if Keys["D"] then
-                            newPos = newPos * CFrame.new(flySpeed, 0, 0);
-                        end
+					if AgentUtils.Keys["D"] then
+						newPos = newPos * CFrame.new(getgenv().AgentHub.FlySpeed, 0, 0)
+					end
 
-                        bodyP.Position = newPos.Position
-                        bodyG.CFrame = coordinateFrame
-                    end)
-                else
-                    if flyLoop then
-                        bodyP:Destroy()
-                        bodyG:Destroy()
-                        GetHumanoid().PlatformStand = false
-                        flyLoop:Disconnect()
-                    end
-                end
-            end,
-            Enabled = false
-        })
+					bodyP.Position = newPos.Position
+					bodyG.CFrame = coordinateFrame
+				end)
 
-        CharacterPage.Toggle({ -- Noclip Toggle
-            Text = "Noclip",
-            Callback = function(value)
-                if value then
-                    noclipLoop = game:GetService("RunService").Stepped:Connect(function()
-                        for _, v in pairs(GetCharacter():GetDescendants()) do
-                            if v:IsA("BasePart") and v.CanCollide == true then
-                                v.CanCollide = false
-                            end
-                        end
-                    end)
-                else
-                    if noclipLoop then
-                        noclipLoop:Disconnect()
-                    end
-                end
-            end,
-            Enabled = false
-        })
+			elseif getgenv().AgentHub.CanFly == true then
+				getgenv().AgentHub.CanFly = false
+			end
+		end,
+		Enabled = false
+	})
 
-        CharacterPage.Toggle({ -- Infinite Jump Toggle
-            Text = "Infinite Jump",
-            Callback = function(value)
-                infiniteJumpEnabled = value
-            end,
-            Enabled = false
-        })
+	CharacterPage.Toggle({ -- Noclip Toggle
+		Text = "Noclip",
+		Callback = function(value)
+			if value == true then
+				getgenv().AgentHub.CanNoclip = true
 
-        game:GetService("UserInputService").JumpRequest:Connect(function()
-            if infiniteJumpEnabled then
-                game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-            end
-        end)
-    end
+				local noclipLoop noclipLoop = game:GetService("RunService").Stepped:Connect(function()
+					if getgenv().AgentHub.CanNoclip == false then
+						noclipLoop:Disconnect()
+					end
 
-    do -- Teleport Page
-        local selectedPlayer = nil
+					for _, v in pairs(AgentUtils:GetCharacter():GetDescendants()) do
+						if v:IsA("BasePart") and v.CanCollide == true then
+							v.CanCollide = false
+						end
+					end
+				end)
 
-        local TeleportPage = Window.New({
-            Title = "Teleport"
-        })
+			elseif getgenv().AgentHub.CanNoclip == true then
+				getgenv().AgentHub.CanNoclip = false
+			end
+		end,
+		Enabled = false
+	})
 
-        TeleportPage.Button({ -- Teleport To Button
-            Text = "Teleport To",
-            Callback = function()
-                Teleport(GetRoot(selectedPlayer).CFrame * CFrame.new(0, 0, 2))
-            end
-        })
+	CharacterPage.Toggle({ -- Infinite Jump Toggle
+		Text = "Infinite Jump",
+		Callback = function(value)
+			if value == true then
+				getgenv().AgentHub.CanInfJump = true
 
-        local PlayerListDropdown = TeleportPage.Dropdown({ -- Player List Dropdown
-            Text = "Select Player",
-            Callback = function(value)
-                selectedPlayer = value
-            end,
-            Options = {}
-        })
+				local infJumpLoop infJumpLoop = game:GetService("UserInputService").JumpRequest:Connect(function()
+					if getgenv().AgentHub.CanInfJump == false then
+						infJumpLoop:Disconnect()
+					end
 
-        local function UpdatePlayerList()
-            local players = {}
+					game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+				end)
 
-            for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-                table.insert(players, player.Name)
-            end
+			elseif getgenv().AgentHub.CanInfJump == true then
+				getgenv().AgentHub.CanInfJump = false
+			end
+		end,
+		Enabled = false
+	})
+end
 
-            PlayerListDropdown:SetOptions(players)
-        end
+do -- Teleport Page
+	local selectedPlayer = nil
 
-        spawn(UpdatePlayerList)
+	local TeleportPage = Window.New({
+		Title = "Teleport"
+	})
 
-        game:GetService("Players").PlayerAdded:Connect(UpdatePlayerList)
-        game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerList)
-    end
+	TeleportPage.Button({ -- Teleport To Button
+		Text = "Teleport To",
+		Callback = function()
+			AgentUtils:Teleport(AgentUtils:GetRoot(selectedPlayer).CFrame * CFrame.new(0, 0, 2))
+		end
+	})
 
-    do -- Games Page
-        if gameScripts and #gameScripts > 0 then
-            local GameScriptsPage = Window.New({
-                Title = "Games"
-            })
+	local PlayerListDropdown = TeleportPage.Dropdown({ -- Player List Dropdown
+		Text = "Select Player",
+		Callback = function(value)
+			selectedPlayer = value
+		end,
+		Options = {}
+	})
 
-            for _, gs in pairs(gameScripts) do
-                GameScriptsPage.Button({
-                    Text = string.split(gs.Name, ".")[1],
-                    Callback = gs
-                })
-            end
-        end
-    end
+	local function UpdatePlayerList()
+		local players = {}
 
-    do -- Scripts Page
-        if scripts and #scripts > 0 then
-            local ScriptsPage = Window.New({
-                Title = "Scripts"
-            })
+		for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+			table.insert(players, player.Name)
+		end
 
-            for _, s in pairs(scripts) do
-                ScriptsPage.Button({
-                    Text = string.split(s.Name, ".")[1],
-                    Callback = s
-                })
-            end
-        end
-    end
+		PlayerListDropdown:SetOptions(players)
+	end
 
-    do -- Credits Page
-        local CreditsPage = Window.New({
-            Title = "Credits"
-        })
+	UpdatePlayerList()
 
-        CreditsPage.Button({ -- Programmer Credits
-            Text = "Programmer: Agentotten#2610",
-            Callback = function() end
-        })
+	game:GetService("Players").PlayerAdded:Connect(UpdatePlayerList)
+	game:GetService("Players").PlayerRemoving:Connect(UpdatePlayerList)
+end
 
-        CreditsPage.Button({ -- UI Design Credits
-            Text = "UI Design: Material Lua - Twink Marie",
-            Callback = function() end
-        })
-    end
+do -- Games Page
+	if getgenv().AgentHub.GameScripts and #getgenv().AgentHub.GameScripts > 0 then
+		local GameScriptsPage = Window.New({
+			Title = "Games"
+		})
+
+		for _, gs in pairs(getgenv().AgentHub.GameScripts) do
+			GameScriptsPage.Button({
+				Text = string.split(gs.Name, ".")[1],
+				Callback = gs
+			})
+		end
+	end
+end
+
+do -- Scripts Page
+	if getgenv().AgentHub.Scripts and #getgenv().AgentHub.Scripts > 0 then
+		local ScriptsPage = Window.New({
+			Title = "Scripts"
+		})
+
+		for _, s in pairs(getgenv().AgentHub.Scripts) do
+			ScriptsPage.Button({
+				Text = string.split(s.Name, ".")[1],
+				Callback = s
+			})
+		end
+	end
+end
+
+do -- Credits Page
+	local CreditsPage = Window.New({
+		Title = "Credits"
+	})
+
+	CreditsPage.Button({ -- Programmer Credits
+		Text = "Programmer: Agentotten#2610",
+		Callback = function()
+			local sound = Instance.new("Sound")
+			sound.SoundId = "rbxassetid://929935298"
+			game:GetService("SoundService"):PlayLocalSound(sound)
+			sound:Destroy()
+		end
+	})
+
+	CreditsPage.Button({ -- UI Design Credits
+		Text = "UI Design: Material Lua - Twink Marie",
+		Callback = function()
+			local sound = Instance.new("Sound")
+			sound.SoundId = "rbxassetid://929935298"
+			game:GetService("SoundService"):PlayLocalSound(sound)
+			sound:Destroy()
+		end
+	})
 end
