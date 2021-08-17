@@ -23,4 +23,4 @@ getgenv().AgentHub = {}
 getgenv().AgentHub.Scripts = scripts
 getgenv().AgentHub.GameScripts = gameScripts
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/master/source.lua"))()
+loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Agentotten/agenthub/master/source.lua"))()

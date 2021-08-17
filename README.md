@@ -3,7 +3,7 @@
 <h2> <p align="center"> Script </p> </h2>
 
 ``` lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Agentotten/agenthub/master/loader.lua"))()
+loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Agentotten/agenthub/master/loader.lua"))()
 ```
 
 <h2> <p align="center"> Supported Executors </p> </h2>
